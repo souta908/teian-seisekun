@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>提案書セイセイ君</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #1e293b;
+  --mid: #64748b;
+  --light: #94a3b8;
+  --faint: #e2e8f0;
+  --bg: #f1f5f9;
+  --white: #fff;
+  --blue: #2563eb;
+  --blue-mid: #3b82f6;
+  --blue-light: #dbeafe;
+  --blue-pale: #eff6ff;
+  --radius: 8px;
+}
+body {
+  font-family: 'DM Sans', 'Noto Sans JP', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+.app { max-width: 640px; margin: 0 auto; padding: 32px 16px 80px; }
+
+/* HEADER */
+.app-header {
+  margin-bottom: 28px;
+  display: flex; align-items: center; gap: 14px;
+}
+.app-icon {
+  width: 44px; height: 44px; background: var(--blue); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.app-title { font-size: 20px; font-weight: 700; color: var(--ink); letter-spacing: -.02em; }
+.app-sub { font-size: 11.5px; color: var(--mid); margin-top: 2px; }
+
+/* STEPPER */
+.stepper { display: flex; align-items: center; margin-bottom: 24px; }
+.step-item { display: flex; align-items: center; gap: 8px; }
+.step-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; transition: all .2s;
+  border: 2px solid var(--faint); background: var(--white); color: var(--light);
+}
+.step-num.active { background: var(--blue); border-color: var(--blue); color: white; }
+.step-num.done { background: var(--blue); border-color: var(--blue); color: white; }
+.step-label { font-size: 11px; color: var(--light); font-weight: 500; }
+.step-label.active { color: var(--ink); font-weight: 600; }
+.step-line { flex: 1; height: 1px; background: var(--faint); margin: 0 8px; }
+
+/* CARD */
+.card { background: var(--white); border-radius: var(--radius); padding: 24px; border: 1px solid var(--faint); }
+.card + .card { margin-top: 12px; }
+.card-title { font-size: 13px; font-weight: 700; margin-bottom: 16px; color: var(--ink); }
+
+/* FORM */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-row.full { grid-template-columns: 1fr; }
+.field label { display: block; font-size: 11px; font-weight: 600; color: var(--mid); margin-bottom: 5px; letter-spacing: .04em; text-transform: uppercase; }
+.field input, .field select {
+  width: 100%; padding: 10px 12px;
+  border: 1.5px solid var(--faint); border-radius: 6px;
+  font-size: 14px; font-family: inherit; color: var(--ink);
+  background: var(--white); transition: border-color .15s, box-shadow .15s;
+  -webkit-appearance: none;
+}
+.field input:focus, .field select:focus {
+  outline: none; border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+.field .hint { font-size: 10px; color: var(--light); margin-top: 3px; }
+
+/* PLAN CARD */
+.plan-card {
+  border: 2px solid var(--faint); border-radius: 6px;
+  padding: 12px 14px; cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; gap: 12px;
+}
+.plan-card:hover { border-color: var(--blue-mid); }
+.plan-card.selected { border-color: var(--blue); background: var(--blue-pale); }
+.plan-radio { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--faint); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.plan-card.selected .plan-radio { border-color: var(--blue); background: var(--blue); }
+.plan-card.selected .plan-radio::after { content: ''; width: 6px; height: 6px; background: white; border-radius: 50%; }
+.plan-name { font-size: 13px; font-weight: 700; }
+.plan-fee { font-size: 11px; color: var(--mid); }
+
+/* MINI SUMMARY */
+.mini-summary {
+  background: var(--blue); border-radius: 6px;
+  padding: 14px 18px; margin-top: 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.mini-summary .ms-label { font-size: 10px; color: rgba(255,255,255,.65); margin-bottom: 2px; }
+.mini-summary .ms-val { font-size: 22px; font-weight: 900; color: white; letter-spacing: -.03em; }
+.mini-summary .ms-unit { font-size: 13px; font-weight: 400; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 11px 22px; border-radius: 6px; font-size: 13px; font-weight: 700;
+  border: none; cursor: pointer; transition: all .15s; font-family: inherit;
+}
+.btn-primary { background: var(--blue); color: white; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-primary:disabled { background: var(--faint); color: var(--light); cursor: not-allowed; }
+.btn-ghost { background: transparent; color: var(--mid); border: 1.5px solid var(--faint); }
+.btn-ghost:hover { border-color: var(--mid); color: var(--ink); }
+.btn-print { background: var(--blue); color: white; font-size: 14px; padding: 12px 28px; border-radius: 7px; }
+.btn-print:hover { background: #1d4ed8; }
+.btn-row { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+
+/* LOADER */
+.loader-wrap { text-align: center; padding: 48px 24px; }
+.loader { display: inline-block; width: 36px; height: 36px; border: 3px solid var(--faint); border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; margin-bottom: 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ERROR */
+.error-box { background: #fff3f3; border: 1px solid #fcc; border-radius: 6px; padding: 12px 14px; font-size: 12px; color: #c00; margin-bottom: 12px; }
+
+/* PREVIEW */
+.preview-wrap { overflow-x: auto; }
+.preview-scale { transform-origin: top left; transform: scale(0.72); width: 210mm; margin-bottom: -80mm; }
+
+/* PRINT */
+#print-area {
+  position: fixed;
+  top: 0; left: -9999px;
+  width: 210mm; height: 297mm;
+  overflow: hidden;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 11px; color: #1e293b; line-height: 1.5;
+  display: flex; flex-direction: column;
+  box-sizing: border-box;
+  background: white;
+}
+@media print {
+  @page { size: A4; margin: 12mm 15mm; }
+  body > *:not(#print-area) { display: none !important; }
+  #print-area {
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    box-shadow: none !important;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app-root"></div>
+<div id="print-area"></div>
+
+<script>
+const fmt = n => Number(n).toLocaleString('ja-JP');
+
+const PLANS = [
+  { id: "light", name: "PRライトプラン", monthlyFee: 10000, desc: "月額固定費 10,000円" },
+  { id: "basic", name: "PRベーシックプラン", monthlyFee: 25000, desc: "月額固定費 25,000円・優先表示機能付き・新規集客効果あり" },
+];
+
+function nextMonth(m) {
+  const match = m.match(/(\d+)年(\d+)月/);
+  if (!match) return m;
+  let y = +match[1], mo = +match[2] + 1;
+  if (mo > 12) { mo = 1; y++; }
+  return `${y}年${mo}月度`;
+}
+
+function calcAll(lunch, dinner, fee) {
+  const l = +lunch||0, d = +dinner||0, total = l + d;
+  const curM = l*100 + d*200;
+  const campVol = total * 50;
+  const m1 = campVol, m4 = campVol + fee;
+  const cur6 = curM * 6, camp6 = m1*3 + m4*3;
+  const savings = cur6 - camp6;
+  return { total, curM, campVol, m1, m4, cur6, camp6, savings,
+    diff1: curM - m1, diff4: curM - m4 };
+}
+
+// ── STATE ──
+let state = {
+  step: 'configure',
+  error: null,
+  form: { storeName: '', month: '2026年5月度', lunch: '', dinner: '', planId: 'light' }
+};
+
+function setState(patch) {
+  state = { ...state, ...patch };
+  render();
+}
+
+function updateForm(key, val) {
+  state.form = { ...state.form, [key]: val };
+  const focused = document.activeElement ? document.activeElement.id : null;
+  render();
+  if (focused) { const el = document.getElementById(focused); if (el) el.focus(); }
+}
+
+// ── PROPOSAL HTML ──
+function buildProposal(form, c, plan) {
+  const { storeName, month } = form;
+  const lunch = +form.lunch||0, dinner = +form.dinner||0;
+  const startMonth = nextMonth(month);
+
+  const badge4to6 = c.diff4 > 0
+    ? `${fmt(c.m4)}円 <span style="display:inline-block;background:#dbeafe;color:#2563eb;border:1px solid #93c5fd;font-size:8.5px;padding:1px 6px;border-radius:8px;margin-left:4px;font-weight:700;">毎月 ▲${fmt(c.diff4)}円</span>`
+    : `${fmt(c.m4)}円<br><span style="font-size:7.5px;color:#94a3b8;font-style:italic;">※固定費（${fmt(plan.monthlyFee)}円）込み。半年トータルでは削減になります。</span>`;
+
+  const point3 = c.total >= 150
+    ? `予約母数が多いため削減効果が大きく、毎月最大${fmt(c.diff1)}円のコスト削減が期待できます。`
+    : c.diff4 > 0
+    ? `キャンペーン期間中は毎月最大${fmt(c.diff1)}円のコスト削減が見込めます。`
+    : `前半3ヶ月で月${fmt(c.diff1)}円削減でき、半年トータルでは${fmt(c.savings)}円お得になります。`;
+
+  return `
+<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:14px 20px 11px;border-bottom:1px solid #e2e8f0;flex-shrink:0;background:#fff;">
+  <div>
+    <div style="font-size:8px;letter-spacing:.12em;color:#94a3b8;text-transform:uppercase;margin-bottom:3px;">食べログ 営業提案書</div>
+    <div style="font-family:'Noto Serif JP',serif;font-size:15px;font-weight:700;margin-bottom:2px;color:#1e293b;">「超得キャンペーン」ご利用提案書</div>
+    <div style="font-size:8.5px;color:#94a3b8;">ネット予約従量料金の削減およびアクセスアップ機能導入のご案内</div>
+  </div>
+  <div style="text-align:right;flex-shrink:0;margin-left:16px;white-space:nowrap;">
+    <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:#1e293b;">${storeName} 様</div>
+    <div style="font-size:8.5px;color:#94a3b8;line-height:1.7;">実績月：${month}<br>キャンペーン適用開始：${startMonth}〜</div>
+  </div>
+</div>
+
+<div style="background:linear-gradient(135deg,#1d4ed8 0%,#3b82f6 100%);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;">
+  <div>
+    <div style="font-size:8px;letter-spacing:.12em;color:rgba(255,255,255,.55);margin-bottom:4px;">COST REDUCTION</div>
+    <div style="font-size:10px;color:rgba(255,255,255,.9);white-space:nowrap;">半年間のコスト削減額</div>
+  </div>
+  <div style="text-align:right;flex-shrink:0;">
+    <div style="font-size:8.5px;color:rgba(255,255,255,.65);margin-bottom:1px;">実質削減額（税別・試算）</div>
+    <div style="font-size:38px;font-weight:900;letter-spacing:-.04em;line-height:1;color:#fff;white-space:nowrap;"><span style="font-size:20px;">▲</span>${fmt(c.savings)}<span style="font-size:16px;font-weight:500;margin-left:1px;">円</span></div>
+    <div style="font-size:8px;color:rgba(255,255,255,.5);margin-top:3px;white-space:nowrap;">現状維持（6ヶ月）${fmt(c.cur6)}円 → 適用後 ${fmt(c.camp6)}円</div>
+  </div>
+</div>
+
+<div style="padding:8px 20px;font-size:9.5px;color:#475569;line-height:1.75;border-bottom:1px solid #e2e8f0;background:#f8faff;flex-shrink:0;">
+  貴店の直近（${month}）のネット予約実績をもとに試算いたしました。本キャンペーンを適用して「${plan.name}」をご導入いただくことで、4ヶ月目から固定費が発生しても、<strong>半年間のトータルコストを大幅に引き下げること</strong>が可能です。
+</div>
+
+<div style="padding:10px 20px 0;flex:1;display:flex;flex-direction:column;gap:8px;background:#fff;">
+  <div>
+    <div style="font-size:10px;font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:6px;display:flex;align-items:center;gap:5px;color:#1e293b;">
+      <span style="background:#2563eb;color:white;width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">1</span>
+      月次コスト比較（${month}実績）
+    </div>
+    <div style="display:inline-flex;align-items:center;gap:10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:4px;padding:4px 12px;font-size:10px;margin-bottom:6px;">
+      <span style="color:#64748b;">来店実績</span><strong style="color:#1e293b;">${fmt(c.total)}名</strong>
+      <span style="color:#bfdbfe;">|</span><span style="color:#64748b;">ランチ</span><strong style="color:#1e293b;">${fmt(lunch)}名</strong>
+      <span style="color:#bfdbfe;">|</span><span style="color:#64748b;">ディナー</span><strong style="color:#1e293b;">${fmt(dinner)}名</strong>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:10px;table-layout:fixed;">
+      <colgroup><col style="width:23%"><col style="width:38.5%"><col style="width:38.5%"></colgroup>
+      <thead>
+        <tr>
+          <th style="padding:6px 8px;text-align:left;font-weight:600;font-size:9px;color:white;background:#334155;">項目</th>
+          <th style="padding:6px 8px;text-align:center;font-weight:600;font-size:9px;color:white;background:#64748b;">① 現状維持（プランなし）</th>
+          <th style="padding:6px 8px;text-align:center;font-weight:600;font-size:9px;color:white;background:#2563eb;">② キャンペーン適用（${plan.name}）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:6px 8px;text-align:left;font-weight:500;background:#f8fafc;color:#1e293b;">月額固定費</td>
+          <td style="padding:6px 8px;text-align:center;color:#64748b;">0円</td>
+          <td style="padding:6px 8px;text-align:center;color:#64748b;">1〜3ヶ月目：0円<br><span style="font-size:8px;color:#94a3b8;">4〜6ヶ月目：${fmt(plan.monthlyFee)}円</span></td>
+        </tr>
+        <tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:6px 8px;text-align:left;font-weight:500;background:#f8fafc;color:#1e293b;">従量料金<br><span style="font-size:8px;color:#94a3b8;font-weight:400;">ランチ／ディナー</span></td>
+          <td style="padding:6px 8px;text-align:center;color:#64748b;">${fmt(c.curM)}円<br><span style="font-size:8px;color:#94a3b8;">100円×${lunch}名 ／ 200円×${dinner}名</span></td>
+          <td style="padding:6px 8px;text-align:center;color:#64748b;">${fmt(c.campVol)}円<br><span style="font-size:8px;color:#94a3b8;">一律 50円×${c.total}名</span></td>
+        </tr>
+        <tr><td colspan="3" style="padding:4px 8px;background:#eff6ff;font-size:8.5px;color:#93c5fd;text-align:center;letter-spacing:.06em;">— 月額合計 —</td></tr>
+        <tr style="border-bottom:1px solid #e2e8f0;background:#f8faff;">
+          <td style="padding:6px 8px;text-align:left;font-weight:700;background:#f1f5fb;color:#1e293b;">1〜3ヶ月目</td>
+          <td style="padding:6px 8px;text-align:center;font-weight:700;color:#1e293b;">${fmt(c.curM)}円</td>
+          <td style="padding:6px 8px;text-align:center;font-weight:700;color:#2563eb;">${fmt(c.m1)}円 <span style="display:inline-block;background:#dbeafe;color:#2563eb;border:1px solid #93c5fd;font-size:8.5px;padding:1px 6px;border-radius:8px;margin-left:4px;font-weight:700;">毎月 ▲${fmt(c.diff1)}円</span></td>
+        </tr>
+        <tr style="background:#f8faff;">
+          <td style="padding:6px 8px;text-align:left;font-weight:700;background:#f1f5fb;color:#1e293b;">4〜6ヶ月目</td>
+          <td style="padding:6px 8px;text-align:center;font-weight:700;color:#1e293b;">${fmt(c.curM)}円</td>
+          <td style="padding:6px 8px;text-align:center;font-weight:700;color:#2563eb;">${badge4to6}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div>
+    <div style="font-size:10px;font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:6px;display:flex;align-items:center;gap:5px;color:#1e293b;">
+      <span style="background:#2563eb;color:white;width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">2</span>
+      半年間トータルコスト比較
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:7px;">
+      <div style="border:1px solid #e2e8f0;border-radius:5px;padding:8px 10px;text-align:center;background:white;">
+        <div style="font-size:8.5px;color:#94a3b8;margin-bottom:3px;">① 現状維持（6ヶ月合計）</div>
+        <div style="font-size:14px;font-weight:900;color:#1e293b;letter-spacing:-.02em;white-space:nowrap;">${fmt(c.cur6)}<span style="font-size:10px;font-weight:400;">円</span></div>
+        <div style="font-size:8px;color:#94a3b8;margin-top:2px;">税別</div>
+      </div>
+      <div style="border:1px solid #e2e8f0;border-radius:5px;padding:8px 10px;text-align:center;background:white;">
+        <div style="font-size:8.5px;color:#94a3b8;margin-bottom:3px;">② キャンペーン適用（6ヶ月合計）</div>
+        <div style="font-size:14px;font-weight:900;color:#1e293b;letter-spacing:-.02em;white-space:nowrap;">${fmt(c.camp6)}<span style="font-size:10px;font-weight:400;">円</span></div>
+        <div style="font-size:8px;color:#94a3b8;margin-top:2px;">税別</div>
+      </div>
+      <div style="border:2px solid #2563eb;border-radius:5px;padding:8px 10px;text-align:center;background:linear-gradient(135deg,#1d4ed8,#3b82f6);">
+        <div style="font-size:8.5px;color:rgba(255,255,255,.65);margin-bottom:3px;">半年間の総削減額</div>
+        <div style="font-size:18px;font-weight:900;color:#fff;letter-spacing:-.02em;white-space:nowrap;">▲${fmt(c.savings)}<span style="font-size:12px;font-weight:500;">円</span></div>
+        <div style="font-size:8px;color:rgba(255,255,255,.5);margin-top:2px;">税別 ／ 試算ベース</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="border:1px solid #bfdbfe;border-top:2px solid #2563eb;border-radius:0 0 5px 5px;padding:8px 12px;flex:1;background:#f8faff;">
+    <div style="font-size:9.5px;font-weight:700;margin-bottom:5px;color:#1e293b;">▶ 導入のポイント</div>
+    <ul style="padding-left:14px;list-style:disc;font-size:9px;color:#475569;line-height:1.85;">
+      <li>4ヶ月目以降も従量割引（50円）が継続するため、固定費込みでも通常より安くなります。</li>
+      <li>${plan.name}の検索上位表示・広告非表示機能が実質手出しゼロで半年間利用できます。</li>
+      <li>${point3}</li>
+    </ul>
+  </div>
+</div>
+
+<div style="background:#f1f5f9;border-top:1px solid #e2e8f0;padding:6px 20px;font-size:8.5px;color:#94a3b8;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;margin-top:auto;">
+  <div><strong style="color:#64748b;">食べログ</strong> 営業担当：菅原　｜　ご不明点はお気軽にお問い合わせください</div>
+  <div>※本試算は${month}の実績をもとにした目安です。税別表示。</div>
+</div>`;
+}
+
+// ── RENDER ──
+function render() {
+  const root = document.getElementById('app-root');
+  const { step, error, form } = state;
+  const plan = PLANS.find(p => p.id === form.planId) || PLANS[0];
+  const c = calcAll(form.lunch, form.dinner, plan.monthlyFee);
+
+  const stepDefs = [
+    { id: 'configure', label: '内容入力' },
+    { id: 'preview',   label: 'プレビュー・印刷' },
+  ];
+  const stepIdx = stepDefs.findIndex(s => s.id === step);
+
+  const stepperHTML = `
+    <div class="stepper">
+      ${stepDefs.map((s, i) => `
+        <div class="step-item">
+          <div class="step-num ${i < stepIdx ? 'done' : i === stepIdx ? 'active' : ''}">${i < stepIdx ? '✓' : i+1}</div>
+          <span class="step-label ${i === stepIdx ? 'active' : ''}">${s.label}</span>
+        </div>
+        ${i < stepDefs.length-1 ? '<div class="step-line"></div>' : ''}
+      `).join('')}
+    </div>`;
+
+  let content = '';
+
+  if (step === 'configure') {
+    content = `
+      ${error ? `<div class="error-box">⚠️ ${error}</div>` : ''}
+      <div class="card">
+        <div class="card-title">店舗情報</div>
+        <div class="form-row full">
+          <div class="field">
+            <label>店舗名</label>
+            <input type="text" id="f-storeName" value="${form.storeName}" onchange="updateForm('storeName',this.value)" placeholder="例：Ocean table">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>実績月</label>
+            <input type="text" id="f-month" value="${form.month}" onchange="updateForm('month',this.value)" placeholder="2026年5月度">
+          </div>
+          <div class="field">
+            <label>来店合計（自動）</label>
+            <input type="text" value="${(+form.lunch||0)+(+form.dinner||0) ? fmt((+form.lunch||0)+(+form.dinner||0))+'名' : ''}" readonly style="background:#f8fafc;color:#94a3b8;">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>ランチ人数（16時以前）</label>
+            <input type="number" id="f-lunch" value="${form.lunch}" onchange="updateForm('lunch',this.value)" placeholder="0">
+          </div>
+          <div class="field">
+            <label>ディナー人数（16時以降）</label>
+            <input type="number" id="f-dinner" value="${form.dinner}" onchange="updateForm('dinner',this.value)" placeholder="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">プラン選択</div>
+        <div>
+          ${PLANS.map(p => `
+            <div class="plan-card ${form.planId===p.id?'selected':''}" onclick="updateForm('planId','${p.id}')">
+              <div class="plan-radio"></div>
+              <div>
+                <div class="plan-name">${p.name}</div>
+                <div class="plan-fee">${p.desc}・従量料金 一律50円/人（6ヶ月間）</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        ${c.savings > 0 ? `
+          <div class="mini-summary">
+            <div>
+              <div class="ms-label">半年間の削減額（試算）</div>
+              <div class="ms-val">▲${fmt(c.savings)}<span class="ms-unit">円</span></div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:9px;color:rgba(255,255,255,.5);margin-bottom:2px;">現状 ${fmt(c.cur6)}円</div>
+              <div style="font-size:9px;color:rgba(255,255,255,.7);">↓ 適用後 ${fmt(c.camp6)}円</div>
+            </div>
+          </div>` : ''}
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goPreview()" ${!form.storeName ? 'disabled' : ''}>
+          提案書を生成する →
+        </button>
+      </div>`;
+  }
+
+  else if (step === 'preview') {
+    content = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <button class="btn btn-ghost" onclick="setState({step:'configure'})">← 編集に戻る</button>
+        <button class="btn btn-print" onclick="doPrint()">🖨️ 印刷 / PDF保存</button>
+      </div>
+      <div class="preview-wrap">
+        <div class="preview-scale">
+          <div id="proposal-inner" style="width:210mm;height:297mm;background:white;overflow:hidden;font-family:'Noto Sans JP',sans-serif;font-size:11px;color:#1e293b;line-height:1.5;display:flex;flex-direction:column;box-sizing:border-box;box-shadow:0 4px 32px rgba(0,0,0,.12);"></div>
+        </div>
+      </div>`;
+  }
+
+  root.innerHTML = `
+    <div class="app-header">
+      <div class="app-icon">📋</div>
+      <div>
+        <div class="app-title">提案書セイセイ君</div>
+        <div class="app-sub">超得キャンペーン 提案書ジェネレーター</div>
+      </div>
+    </div>
+    ${stepperHTML}
+    ${content}`;
+
+  if (step === 'preview') {
+    const inner = document.getElementById('proposal-inner');
+    if (inner) inner.innerHTML = buildProposal(form, c, plan);
+    const printEl = document.getElementById('print-area');
+    if (printEl) printEl.innerHTML = buildProposal(form, c, plan);
+  }
+}
+
+function goPreview() { setState({ step: 'preview' }); }
+
+function doPrint() { window.print(); }
+
+render();
+</script>
+</body>
+</html>
